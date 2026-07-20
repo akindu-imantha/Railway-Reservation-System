@@ -7,6 +7,7 @@ public class Reservation {
     private Train train;
     private int seatNo;
 
+    // Create a reservation for a passenger, train, and seat number.
     public Reservation(int reservationId,
                        Passenger passenger,
                        Train train,
@@ -18,22 +19,27 @@ public class Reservation {
         this.seatNo = seatNo;
     }
 
+    // Return the reservation ID.
     public int getReservationId() {
         return reservationId;
     }
 
+    // Return the passenger linked to this reservation.
     public Passenger getPassenger() {
         return passenger;
     }
 
+    // Return the train linked to this reservation.
     public Train getTrain() {
         return train;
     }
 
+    // Return the booked seat number.
     public int getSeatNo() {
         return seatNo;
     }
 
+    // Print reservation details to the console.
     public void displayReservation() {
 
         System.out.println("==============================");
