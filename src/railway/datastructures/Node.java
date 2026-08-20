@@ -1,12 +1,9 @@
 package railway.datastructures;
-
 import railway.model.Reservation;
-
+// A single linked-list item. It stores one reservation and a link to the next item.
 public class Node {
-
     private Reservation data;
     private Node next;
-
     // Create a linked-list node with reservation data.
     public Node(Reservation data) {
         this.data = data;
@@ -32,5 +29,4 @@ public class Node {
     public void setNext(Node next) {
         this.next = next;
     }
-
 }

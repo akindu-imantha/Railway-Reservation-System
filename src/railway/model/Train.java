@@ -1,5 +1,6 @@
 package railway.model;
 
+// Represents one train and keeps its route and seat availability details.
 public class Train {
 
     private int trainNo;
@@ -18,6 +19,7 @@ public class Train {
         this.source = source;
         this.destination = destination;
         this.totalSeats = totalSeats;
+        // At the beginning, every seat is available.
         this.availableSeats = totalSeats;
     }
 
@@ -53,12 +55,14 @@ public class Train {
 
     // Reduce available seats when a ticket is booked.
     public void bookSeat() {
+        // This check prevents the available seat count from becoming negative.
         if (availableSeats > 0)
             availableSeats--;
     }
 
     // Increase available seats when a ticket is cancelled.
     public void cancelSeat() {
+        // This check prevents the available count from becoming more than total seats.
         if (availableSeats < totalSeats)
             availableSeats++;
     }

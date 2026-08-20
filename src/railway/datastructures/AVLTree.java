@@ -2,6 +2,8 @@ package railway.datastructures;
 
 import railway.model.Reservation;
 
+// A self-balancing binary search tree for reservation IDs.
+// Rotations keep the tree height small after insertions and deletions.
 public class AVLTree {
 
     private static class TreeNode {
@@ -18,7 +20,6 @@ public class AVLTree {
     }
 
     private TreeNode root;
-
     // Insert a reservation into the AVL tree.
     public void insert(Reservation reservation) {
         root = insert(root, reservation);
@@ -30,7 +31,6 @@ public class AVLTree {
         if (node == null) {
             return new TreeNode(reservation);
         }
-
         if (reservation.getReservationId() < node.reservation.getReservationId()) {
             node.left = insert(node.left, reservation);
         } else if (reservation.getReservationId() > node.reservation.getReservationId()) {
@@ -40,23 +40,21 @@ public class AVLTree {
             return node;
         }
 
+        // The tree shape may have changed, so update height before balancing.
         updateHeight(node);
         return balance(node);
-
     }
 
     // Delete a reservation from the AVL tree by reservation ID.
     public void delete(int reservationId) {
         root = delete(root, reservationId);
     }
-
     // Recursively delete and rebalance the AVL tree.
     private TreeNode delete(TreeNode node, int reservationId) {
 
         if (node == null) {
             return null;
         }
-
         if (reservationId < node.reservation.getReservationId()) {
             node.left = delete(node.left, reservationId);
         } else if (reservationId > node.reservation.getReservationId()) {
@@ -70,16 +68,13 @@ public class AVLTree {
                 node.right = delete(node.right, successor.reservation.getReservationId());
             }
         }
-
         if (node == null) {
             return null;
         }
 
         updateHeight(node);
         return balance(node);
-
     }
-
     // Find the smallest node in a subtree.
     private TreeNode min(TreeNode node) {
         while (node.left != null) {
@@ -87,7 +82,6 @@ public class AVLTree {
         }
         return node;
     }
-
     // Search the AVL tree using reservation ID.
     public Reservation search(int reservationId) {
 
@@ -106,27 +100,22 @@ public class AVLTree {
         }
 
         return null;
-
     }
-
     // Return the height of a node.
     private int height(TreeNode node) {
         return node == null ? 0 : node.height;
     }
-
     // Recalculate the height of a node.
     private void updateHeight(TreeNode node) {
         node.height = 1 + Math.max(height(node.left), height(node.right));
     }
-
     // Calculate the balance factor of a node.
     private int balanceFactor(TreeNode node) {
         return node == null ? 0 : height(node.left) - height(node.right);
     }
-
     // Balance an AVL node using rotations when needed.
     private TreeNode balance(TreeNode node) {
-
+        // Positive means left side is heavier; negative means right side is heavier.
         int balance = balanceFactor(node);
 
         if (balance > 1) {
@@ -143,12 +132,11 @@ public class AVLTree {
             return rotateLeft(node);
         }
         return node;
-
     }
-
     // Perform a right rotation.
     private TreeNode rotateRight(TreeNode y) {
 
+        // Promote the left child and move its right subtree under the old root.
         TreeNode x = y.left;
         TreeNode t2 = x.right;
         x.right = y;
@@ -157,9 +145,9 @@ public class AVLTree {
         updateHeight(x);
         return x;
     }
-
     // Perform a left rotation.
     private TreeNode rotateLeft(TreeNode x) {
+        // Promote the right child and move its left subtree under the old root.
         TreeNode y = x.right;
         TreeNode t2 = y.left;
         y.left = x;
@@ -168,5 +156,4 @@ public class AVLTree {
         updateHeight(y);
         return y;
     }
-
 }

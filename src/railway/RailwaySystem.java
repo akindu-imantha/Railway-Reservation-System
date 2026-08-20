@@ -13,6 +13,7 @@ import railway.model.Train;
 
 import java.util.Scanner;
 
+// Main controller of the application. It connects menus, models, and data structures.
 public class RailwaySystem {
 
     private Scanner sc = new Scanner(System.in);
@@ -25,9 +26,10 @@ public class RailwaySystem {
     private HashTable passengers = new HashTable();
     private Graph graph;
 
+    // Fixed train data used by this command-line version of the system.
     private Train[] trains = {
             new Train(101, "Yal Devi", "Colombo", "Jaffna", 100),
-            new Train(102, "Udarata Menike", "Colombo", "Badulla", 80),
+            new Train(102, "Udarata Menike", "Colombo", "Badulla", 1),
             new Train(103, "Ruhunu Kumari", "Colombo", "Matara", 120)
     };
 
@@ -44,6 +46,7 @@ public class RailwaySystem {
             menu();
             choice = readInt("Enter Choice : ");
 
+            // Send the user's menu choice to the matching feature.
             switch (choice) {
                 case 1: viewTrains(); break;
                 case 2: bookTicket(); break;
@@ -89,6 +92,7 @@ public class RailwaySystem {
     private void bookTicket() {
 
         viewTrains();
+        // First find the train object that belongs to the entered number.
         Train train = findTrain(readInt("Train Number : "));
 
         if (train == null) {
@@ -96,6 +100,7 @@ public class RailwaySystem {
             return;
         }
 
+        // A full train cannot create a reservation, so save the passenger in FIFO order.
         if (train.getAvailableSeats() == 0) {
             waitingQueue.enqueue(readPassenger());
             System.out.println("Train Full. Passenger Added To Waiting List.");
@@ -116,6 +121,7 @@ public class RailwaySystem {
     private void cancelTicket() {
 
         int id = readInt("Reservation ID : ");
+        // Find the reservation before removing it from every related structure.
         Reservation reservation = reservations.search(id);
 
         if (reservation == null || !reservations.delete(id)) {
@@ -126,6 +132,7 @@ public class RailwaySystem {
         reservationTree.delete(id);
         reservation.getTrain().cancelSeat();
 
+        // Only cancellations with no waiting passenger can be undone later.
         if (waitingQueue.isEmpty()) {
             undoStack.push(reservation);
             System.out.println("Reservation Cancelled.");
@@ -145,6 +152,7 @@ public class RailwaySystem {
             return;
         }
 
+        // peek checks the most recent cancellation without removing it yet.
         Reservation reservation = undoStack.peek();
         Train train = reservation.getTrain();
 
@@ -202,6 +210,7 @@ public class RailwaySystem {
     // Sort reservations using selected sorting algorithm.
     private void sortReservations() {
 
+        // Sorting uses an array copy, so the linked-list booking order remains unchanged.
         Reservation[] data = reservations.toArray();
 
         if (data.length == 0) {
@@ -245,6 +254,7 @@ public class RailwaySystem {
     // Create and store a reservation in all required data structures.
     private Reservation addReservation(Passenger passenger, Train train, int seatNo) {
 
+        // Post-increment uses the current ID, then prepares the next unique ID.
         Reservation reservation = new Reservation(nextReservationId++, passenger, train, seatNo);
         reservations.insert(reservation);
         reservationTree.insert(reservation);
@@ -263,6 +273,7 @@ public class RailwaySystem {
                 readLine("Phone : ")
         );
 
+        // Keep all passengers in the hash table for fast lookup by passenger ID.
         passengers.insert(passenger);
         return passenger;
 
@@ -331,6 +342,7 @@ public class RailwaySystem {
     // Create the default graph routes between stations.
     private void initRoutes() {
 
+        // A graph stores stations as vertices and distances as weighted connections.
         graph = new Graph(new String[] {
                 "Colombo", "Kandy", "Badulla", "Galle", "Matara", "Anuradhapura", "Jaffna"
         });

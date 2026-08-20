@@ -2,6 +2,8 @@ package railway.algorithms;
 
 import railway.model.Reservation;
 
+// Contains different sorting algorithms for Reservation arrays.
+// Each method changes the received array directly.
 public class Sort {
 
     // Sort reservations by reservation ID using bubble sort.
@@ -9,6 +11,7 @@ public class Sort {
 
         for (int i = 0; i < reservations.length - 1; i++) {
             for (int j = 0; j < reservations.length - i - 1; j++) {
+                // Move the larger ID one place to the right.
                 if (reservations[j].getReservationId() > reservations[j + 1].getReservationId()) {
                     swap(reservations, j, j + 1);
                 }
@@ -20,6 +23,7 @@ public class Sort {
     public static void selectionSortByPassengerName(Reservation[] reservations) {
 
         for (int i = 0; i < reservations.length - 1; i++) {
+            // Assume the first unsorted item is the alphabetically smallest.
             int minIndex = i;
 
             for (int j = i + 1; j < reservations.length; j++) {
@@ -39,6 +43,7 @@ public class Sort {
     public static void insertionSortBySeatNo(Reservation[] reservations) {
 
         for (int i = 1; i < reservations.length; i++) {
+            // Insert this item into its correct place in the sorted left side.
             Reservation key = reservations[i];
             int j = i - 1;
 
@@ -53,6 +58,7 @@ public class Sort {
 
     // Sort reservations by train number using merge sort.
     public static void mergeSortByTrainNo(Reservation[] reservations) {
+        // Start with the complete array.
         mergeSortByTrainNo(reservations, 0, reservations.length - 1);
     }
 
@@ -63,6 +69,7 @@ public class Sort {
             return;
         }
 
+        // Split the current part into a left half and a right half.
         int middle = left + (right - left) / 2;
         mergeSortByTrainNo(reservations, left, middle);
         mergeSortByTrainNo(reservations, middle + 1, right);
@@ -127,6 +134,7 @@ public class Sort {
     // Partition reservations around a pivot for descending order.
     private static int partitionDescending(Reservation[] reservations, int low, int high) {
 
+        // The final item is selected as the pivot for this partition.
         int pivot = reservations[high].getReservationId();
         int i = low - 1;
 
@@ -149,6 +157,7 @@ public class Sort {
             return;
         }
 
+        // Use a temporary variable so neither reservation is lost during the swap.
         Reservation temp = reservations[i];
         reservations[i] = reservations[j];
         reservations[j] = temp;

@@ -1,7 +1,6 @@
 package railway.model;
-
+// Connects one passenger to one train and one selected seat.
 public class Reservation {
-
     private int reservationId;
     private Passenger passenger;
     private Train train;
