@@ -283,26 +283,130 @@
                     <div class="page-header">
                         <h2>Railway Routes</h2>
                     </div>
-                    <div class="route-map" id="routeMap"></div>
-                    <div class="route-details" id="routeDetails"></div>
-                    <div class="shortest-path">
-                        <h3>🔍 Find Shortest Path</h3>
-                        <div class="path-form">
-                            <div class="form-group">
-                                <label>Source Station</label>
-                                <select id="pathSource">
-                                    <option value="">-- Select Source --</option>
-                                </select>
+
+                    <!-- Route Stats -->
+                    <div class="route-stats-row">
+                        <div class="route-stat-card">
+                            <span class="route-stat-icon">📍</span>
+                            <div>
+                                <h4 id="routeStatStations">7</h4>
+                                <p>Stations</p>
                             </div>
-                            <div class="form-group">
-                                <label>Destination Station</label>
-                                <select id="pathDest">
-                                    <option value="">-- Select Destination --</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary" onclick="findShortestPath()">🔍 Find Path</button>
                         </div>
-                        <div id="pathResult"></div>
+                        <div class="route-stat-card">
+                            <span class="route-stat-icon">🛤️</span>
+                            <div>
+                                <h4 id="routeStatRoutes">6</h4>
+                                <p>Routes</p>
+                            </div>
+                        </div>
+                        <div class="route-stat-card">
+                            <span class="route-stat-icon">📏</span>
+                            <div>
+                                <h4 id="routeStatDistance">848 km</h4>
+                                <p>Total Distance</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="route-tabs">
+                        <button class="route-tab-btn active" onclick="switchRouteTab('map')">🗺️ Map</button>
+                        <button class="route-tab-btn" onclick="switchRouteTab('traversal')">🧭 Traversal</button>
+                        <button class="route-tab-btn" onclick="switchRouteTab('routes')">🛤️ Routes</button>
+                        <button class="route-tab-btn" onclick="switchRouteTab('path')">🔍 Shortest Path</button>
+                    </div>
+
+                    <!-- Map Tab -->
+                    <div class="route-tab-content active" id="routeTab-map">
+                        <div class="route-map" id="routeMap">
+                            <div class="trav-overlay" id="travOverlay"></div>
+                        </div>
+                        <div class="map-hint" id="mapHint">
+                            💡 <strong>Click a station</strong> to see details, or <strong>click two stations</strong> to find the shortest path
+                        </div>
+                        <div class="station-info-card" id="stationInfoCard" style="display:none;">
+                            <div class="station-info-header">
+                                <span class="station-info-icon">📍</span>
+                                <h3 id="stationInfoName"></h3>
+                                <button class="btn btn-outline btn-sm" onclick="closeStationInfo()">✕</button>
+                            </div>
+                            <div class="station-info-body" id="stationInfoBody"></div>
+                        </div>
+                        <div class="map-legend">
+                            <span class="legend-item"><span class="legend-dot" style="background:#1a73e8"></span>Station</span>
+                            <span class="legend-item"><span class="legend-dot" style="background:#34a853"></span>Visited</span>
+                            <span class="legend-item"><span class="legend-dot" style="background:#fbbc04"></span>Current</span>
+                            <span class="legend-item"><span class="legend-dot" style="background:#ea4335"></span>Selected</span>
+                        </div>
+                    </div>
+
+                    <!-- Traversal Tab -->
+                    <div class="route-tab-content" id="routeTab-traversal">
+                        <div class="traversal-panel" id="traversalPanel">
+                            <div class="traversal-header">
+                                <h3>🧭 Graph Traversal</h3>
+                                <div class="traversal-inline-controls">
+                                    <select id="traversalStart" class="trav-select"></select>
+                                    <select id="traversalAlgo" class="trav-select">
+                                        <option value="bfs">BFS — Breadth-First</option>
+                                        <option value="dfs">DFS — Depth-First</option>
+                                    </select>
+                                    <select id="traversalSpeed" class="trav-select trav-select-sm">
+                                        <option value="1200">Slow</option>
+                                        <option value="600" selected>Normal</option>
+                                        <option value="200">Fast</option>
+                                    </select>
+                                    <button class="btn btn-primary btn-sm" id="traversalRunBtn" onclick="runTraversalStepByStep()">▶️ Run</button>
+                                    <button class="btn btn-success btn-sm" onclick="runTraversalInstant()">⚡ Instant</button>
+                                    <button class="btn btn-outline btn-sm" onclick="resetTraversal()">🔄</button>
+                                </div>
+                            </div>
+                            <div class="traversal-body">
+                                <div class="traversal-split">
+                                    <div class="traversal-code">
+                                        <div class="traversal-code-title">📄 Java Code</div>
+                                        <pre class="traversal-code-block" id="traversalCodeBlock"><span style="color:#6c7086;">// Select an algorithm to see code</span></pre>
+                                    </div>
+                                    <div class="traversal-log">
+                                        <div class="traversal-log-title">📋 Traversal Steps</div>
+                                        <div class="traversal-steps" id="traversalSteps">
+                                            <p class="ds-empty-msg">Click Run to start traversal...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="traversal-result" id="traversalResult"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Routes List Tab -->
+                    <div class="route-tab-content" id="routeTab-routes">
+                        <div class="route-details" id="routeDetails"></div>
+                    </div>
+
+                    <!-- Shortest Path Tab -->
+                    <div class="route-tab-content" id="routeTab-path">
+                        <div class="shortest-path">
+                            <h3>🔍 Find Shortest Path</h3>
+                            <p class="path-hint">Or click two stations on the Map tab to auto-fill</p>
+                            <div class="path-form">
+                                <div class="form-group">
+                                    <label>Source Station</label>
+                                    <select id="pathSource">
+                                        <option value="">-- Select Source --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Destination Station</label>
+                                    <select id="pathDest">
+                                        <option value="">-- Select Destination --</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="findShortestPath()">🔍 Find Path</button>
+                            </div>
+                            <div id="pathResult"></div>
+                        </div>
                     </div>
                 </section>
 
@@ -527,5 +631,6 @@ public void insert(Passenger p) {
 
     <script src="app.js"></script>
     <script src="run-ops.js"></script>
+    <script src="traversal.js"></script>
 </body>
 </html>

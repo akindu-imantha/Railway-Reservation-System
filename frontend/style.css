@@ -551,9 +551,11 @@ body {
     border-radius: var(--radius);
     padding: 32px;
     box-shadow: var(--shadow);
-    margin-bottom: 24px;
+    margin-bottom: 0;
     min-height: 250px;
-    position: relative;
+    position: sticky;
+    top: 64px;
+    z-index: 40;
     overflow: hidden;
 }
 
@@ -1577,9 +1579,590 @@ body {
     pointer-events: none;
 }
 
+/* ===== Graph Traversal Panel ===== */
+.traversal-panel {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    margin-top: 16px;
+    overflow: hidden;
+    border: 2px solid var(--success);
+}
+
+.traversal-header {
+    background: linear-gradient(135deg, var(--success), #2d9249);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.traversal-header h3 {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.traversal-body {
+    padding: 20px 24px;
+}
+
+.traversal-inline-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.trav-select {
+    padding: 7px 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 6px;
+    font-size: 13px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    min-width: 140px;
+}
+
+.trav-select:focus {
+    outline: none;
+    border-color: #fff;
+    background: rgba(255,255,255,0.25);
+}
+
+.trav-select option {
+    color: #333;
+    background: #fff;
+}
+
+.trav-select-sm {
+    min-width: 90px;
+}
+
+.traversal-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-height: 300px;
+}
+
+.traversal-code,
+.traversal-log {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.traversal-code-title,
+.traversal-log-title {
+    padding: 10px 16px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.traversal-code-block {
+    flex: 1;
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.8;
+    overflow: auto;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    white-space: pre;
+}
+
+.traversal-code-block .code-line {
+    display: block;
+    padding: 0 8px;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.traversal-code-block .code-line .line-no {
+    color: #6c7086;
+    display: inline-block;
+    min-width: 28px;
+    text-align: right;
+    margin-right: 16px;
+    user-select: none;
+}
+
+.traversal-code-block .code-line.active-line {
+    background: rgba(249,227,110,0.15);
+    border-left: 3px solid #f9e36e;
+    color: #f9e36e;
+}
+
+.traversal-code-block .code-line.done-line {
+    background: rgba(166,227,161,0.08);
+    border-left: 3px solid #a6e3a1;
+}
+
+.traversal-steps {
+    flex: 1;
+    padding: 12px 16px;
+    overflow-y: auto;
+    max-height: 340px;
+}
+
+.traversal-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    font-size: 13px;
+    animation: logSlideIn 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.traversal-step.t-visit {
+    background: #e8f5e9;
+    border-left-color: var(--success);
+}
+
+.traversal-step.t-enqueue {
+    background: #e8f0fe;
+    border-left-color: var(--primary);
+}
+
+.traversal-step.t-explore {
+    background: #fef7e0;
+    border-left-color: #fbbc04;
+}
+
+.traversal-step.t-check {
+    background: #f3e5f5;
+    border-left-color: #9c27b0;
+}
+
+.traversal-step.t-push {
+    background: #fce8e6;
+    border-left-color: var(--danger);
+}
+
+.traversal-step.t-result {
+    background: #e0f7fa;
+    border-left-color: #00838f;
+}
+
+.traversal-step-num {
+    background: var(--success);
+    color: #fff;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.traversal-step.t-enqueue .traversal-step-num { background: var(--primary); }
+.traversal-step.t-explore .traversal-step-num { background: #e37400; }
+.traversal-step.t-check .traversal-step-num { background: #9c27b0; }
+.traversal-step.t-push .traversal-step-num { background: var(--danger); }
+.traversal-step.t-result .traversal-step-num { background: #00838f; }
+
+.traversal-step-text {
+    flex: 1;
+    line-height: 1.5;
+}
+
+.traversal-step-text strong {
+    color: var(--success);
+}
+
+.traversal-result {
+    margin-top: 16px;
+}
+
+.traversal-result-box {
+    background: #e8f5e9;
+    border: 1px solid var(--success);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+}
+
+.traversal-result-box h4 {
+    color: var(--success);
+    margin-bottom: 8px;
+}
+
+.traversal-order {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.traversal-order .t-node {
+    background: var(--success);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    animation: nodePopIn 0.4s ease;
+}
+
+.traversal-order .t-arrow {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.traversal-panel.running .traversal-btns button {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* ===== Route Stats Row ===== */
+.route-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.route-stat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.route-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.route-stat-icon {
+    font-size: 28px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+}
+
+.route-stat-card:nth-child(2) .route-stat-icon { background: var(--success-light); }
+.route-stat-card:nth-child(3) .route-stat-icon { background: var(--warning-light); }
+
+.route-stat-card h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.route-stat-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* ===== Route Tabs ===== */
+.route-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 6px;
+    box-shadow: var(--shadow);
+}
+
+.route-tab-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.route-tab-btn:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.route-tab-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: var(--shadow);
+}
+
+.route-tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.route-tab-content.active {
+    display: block;
+}
+
+/* ===== Station Info Card ===== */
+.station-info-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    margin-top: 16px;
+    overflow: hidden;
+    border-left: 4px solid var(--primary);
+    animation: fadeIn 0.3s ease;
+}
+
+.station-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--primary-light);
+    border-bottom: 1px solid var(--border);
+}
+
+.station-info-icon {
+    font-size: 24px;
+}
+
+.station-info-header h3 {
+    flex: 1;
+    font-size: 18px;
+    color: var(--primary);
+}
+
+.station-info-body {
+    padding: 16px 20px;
+}
+
+.station-conn-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    background: var(--bg);
+    transition: background 0.2s ease;
+    cursor: pointer;
+}
+
+.station-conn-item:hover {
+    background: var(--primary-light);
+}
+
+.station-conn-arrow {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.station-conn-name {
+    font-weight: 500;
+    flex: 1;
+}
+
+.station-conn-dist {
+    color: var(--text-secondary);
+    font-size: 13px;
+    background: var(--card);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* ===== Map Hint & Legend ===== */
+.map-hint {
+    text-align: center;
+    padding: 12px;
+    margin-top: 12px;
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--primary-dark);
+    animation: fadeIn 0.5s ease;
+}
+
+.map-legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 12px;
+    padding: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* ===== Path Hint ===== */
+.path-hint {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+/* ===== Interactive SVG Station Nodes ===== */
+.station-clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.station-clickable:hover circle:first-of-type {
+    filter: brightness(1.2);
+}
+
+/* ===== Route List Item Interactive ===== */
+.route-item-clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.route-item-clickable:hover {
+    background: var(--primary-light);
+    transform: translateX(4px);
+}
+
+.route-item-clickable.highlighted {
+    background: var(--warning-light);
+    border-left: 3px solid var(--warning);
+}
+
+/* ===== Animated Path Result ===== */
+.path-steps-animated .path-step-node {
+    animation: nodePopIn 0.4s ease;
+    animation-fill-mode: both;
+}
+
+.path-steps-animated .path-step-arrow {
+    animation: fadeIn 0.3s ease;
+    animation-fill-mode: both;
+}
+
+/* ===== Station Tooltip ===== */
+.station-tooltip {
+    position: absolute;
+    background: var(--sidebar-bg);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 20;
+    box-shadow: var(--shadow-lg);
+    white-space: nowrap;
+    animation: fadeIn 0.2s ease;
+}
+
+.station-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--sidebar-bg);
+}
+
+.station-tooltip-name {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.station-tooltip-conns {
+    color: rgba(255,255,255,0.8);
+}
+
+/* Map overlay for traversal results */
+.trav-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(26,115,232,0.95));
+    color: #fff;
+    padding: 12px 24px 16px;
+    border-radius: 0 0 var(--radius) var(--radius);
+    font-size: 13px;
+    display: none;
+    z-index: 10;
+    animation: fadeSlideUp 0.4s ease;
+}
+
+.trav-overlay.visible {
+    display: block;
+}
+
+.trav-overlay-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.trav-overlay-order {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.trav-overlay-order .tov-node {
+    background: #fff;
+    color: var(--primary);
+    padding: 3px 10px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    animation: nodePopIn 0.3s ease;
+}
+
+.trav-overlay-order .tov-arrow {
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+}
+
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-    .run-split {
+    .run-split, .traversal-split {
         grid-template-columns: 1fr;
     }
 }

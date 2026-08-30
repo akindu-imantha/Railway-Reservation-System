@@ -691,61 +691,185 @@ function populateStationSelects() {
 }
 
 function renderRouteMap() {
-    // Position stations in the map
-    const positions = {
-        "Colombo":       { x: 100, y: 130 },
-        "Kandy":         { x: 280, y: 60 },
-        "Badulla":       { x: 480, y: 60 },
-        "Galle":         { x: 220, y: 210 },
-        "Matara":        { x: 370, y: 210 },
-        "Anuradhapura":  { x: 380, y: 130 },
-        "Jaffna":        { x: 530, y: 130 }
-    };
-
-    const svgWidth = 620;
-    const svgHeight = 280;
-
-    let svg = `<svg viewBox="0 0 ${svgWidth} ${svgHeight}" width="100%" style="max-height:280px;">`;
-
-    // Draw route lines
-    routes.forEach(route => {
-        const from = positions[route.from];
-        const to = positions[route.to];
-        svg += `<line class="route-line" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"/>`;
-        // Distance label
-        const mx = (from.x + to.x) / 2;
-        const my = (from.y + to.y) / 2;
-        svg += `<text x="${mx}" y="${my - 8}" text-anchor="middle" fill="#5f6368" font-size="11">${route.distance} km</text>`;
-    });
-
-    // Draw station nodes
-    stations.forEach(station => {
-        const pos = positions[station];
-        svg += `
-            <g class="station-node" transform="translate(${pos.x}, ${pos.y})">
-                <circle r="22" fill="#1a73e8" stroke="#fff" stroke-width="3"/>
-                <text y="5" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">●</text>
-                <text y="36" text-anchor="middle" fill="#202124" font-size="12" font-weight="500">${station}</text>
-            </g>`;
-    });
-
-    svg += '</svg>';
-    document.getElementById('routeMap').innerHTML = svg;
+    renderTraversalDefault();
+    updateRouteStats();
 }
+
+// ===== ROUTE TABS =====
+
+let currentRouteTab = 'map';
+
+function switchRouteTab(tab) {
+    currentRouteTab = tab;
+    document.querySelectorAll('.route-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.route-tab-content').forEach(tc => tc.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('routeTab-' + tab).classList.add('active');
+
+    // Re-render map when switching to map tab
+    if (tab === 'map') {
+        setTimeout(function() {
+            renderTraversalDefault();
+        }, 50);
+    }
+}
+
+// ===== ROUTE STATS =====
+
+function updateRouteStats() {
+    const totalDist = routes.reduce(function(sum, r) { return sum + r.distance; }, 0);
+    document.getElementById('routeStatStations').textContent = stations.length;
+    document.getElementById('routeStatRoutes').textContent = routes.length;
+    document.getElementById('routeStatDistance').textContent = totalDist + ' km';
+}
+
+// ===== ROUTE DETAILS (interactive) =====
 
 function renderRouteDetails() {
     let html = '<h3 style="margin-bottom:16px;">📍 Route Distances</h3>';
 
-    routes.forEach(route => {
+    routes.forEach(function(route, index) {
         html += `
-            <div class="route-item">
-                <span>🚄</span>
-                <span class="route-stations">${route.from} → ${route.to}</span>
-                <span class="route-distance">${route.distance} km</span>
+            <div class="route-item-clickable" onclick="highlightRouteOnMap(${index})" id="routeListItem${index}">
+                <div class="route-item">
+                    <span>🚄</span>
+                    <span class="route-stations">${route.from} → ${route.to}</span>
+                    <span class="route-distance">${route.distance} km</span>
+                </div>
             </div>`;
     });
 
     document.getElementById('routeDetails').innerHTML = html;
+}
+
+function highlightRouteOnMap(index) {
+    // Remove previous highlights
+    document.querySelectorAll('.route-item-clickable').forEach(function(el) {
+        el.classList.remove('highlighted');
+    });
+    // Add highlight
+    var item = document.getElementById('routeListItem' + index);
+    if (item) item.classList.add('highlighted');
+
+    // Switch to map tab to show
+    var tabs = document.querySelectorAll('.route-tab-btn');
+    tabs.forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.route-tab-content').forEach(function(tc) { tc.classList.remove('active'); });
+    tabs[0].classList.add('active');
+    document.getElementById('routeTab-map').classList.add('active');
+    currentRouteTab = 'map';
+
+    // Render map with highlighted route
+    highlightSingleRoute(index);
+}
+
+function highlightSingleRoute(routeIndex) {
+    var route = routes[routeIndex];
+    var positions = {
+        "Colombo": { x: 100, y: 130 }, "Kandy": { x: 280, y: 60 },
+        "Badulla": { x: 480, y: 60 }, "Galle": { x: 220, y: 210 },
+        "Matara": { x: 370, y: 210 }, "Anuradhapura": { x: 380, y: 130 },
+        "Jaffna": { x: 530, y: 130 }
+    };
+    var svgW = 620, svgH = 280;
+    var svg = '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" width="100%" style="max-height:280px;">';
+
+    routes.forEach(function(r, i) {
+        var from = positions[r.from];
+        var to = positions[r.to];
+        var isHighlighted = (i === routeIndex);
+        var strokeClass = isHighlighted ? 'route-line-highlight' : 'route-line';
+        var sw = isHighlighted ? 4 : 2;
+        svg += '<line class="' + strokeClass + '" x1="' + from.x + '" y1="' + from.y + '" x2="' + to.x + '" y2="' + to.y + '" stroke-width="' + sw + '"/>';
+        var mx = (from.x + to.x) / 2;
+        var my = (from.y + to.y) / 2;
+        svg += '<text x="' + mx + '" y="' + (my - 8) + '" text-anchor="middle" fill="' + (isHighlighted ? '#ea4335' : '#5f6368') + '" font-size="11" font-weight="' + (isHighlighted ? 'bold' : 'normal') + '">' + r.distance + ' km</text>';
+    });
+
+    stations.forEach(function(station) {
+        var pos = positions[station];
+        var isEndpoint = (station === route.from || station === route.to);
+        var fillColor = isEndpoint ? '#ea4335' : '#1a73e8';
+        var r = isEndpoint ? 26 : 22;
+        svg += '<g class="station-clickable" transform="translate(' + pos.x + ',' + pos.y + ')" onclick="onMapStationClick(\'' + station + '\')">';
+        svg += '<circle r="' + r + '" fill="' + fillColor + '" stroke="#fff" stroke-width="3"/>';
+        svg += '<text y="1" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold" dominant-baseline="middle">●</text>';
+        svg += '<text y="' + (r + 14) + '" text-anchor="middle" fill="#202124" font-size="12" font-weight="500">' + station + '</text>';
+        svg += '</g>';
+    });
+
+    svg += '</svg>';
+    var mapEl = document.getElementById('routeMap');
+    mapEl.innerHTML = svg;
+    if (!document.getElementById('travOverlay')) {
+        var ov = document.createElement('div');
+        ov.id = 'travOverlay';
+        ov.className = 'trav-overlay';
+        mapEl.appendChild(ov);
+    }
+}
+
+// ===== STATION CLICK (map interaction) =====
+
+var mapSelectedStations = [];
+
+function onMapStationClick(stationName) {
+    mapSelectedStations.push(stationName);
+
+    if (mapSelectedStations.length === 1) {
+        // First click - set as source
+        document.getElementById('pathSource').value = stationName;
+        showStationInfo(stationName);
+        showToast(stationName + ' selected as source', 'info');
+    } else if (mapSelectedStations.length === 2) {
+        // Second click - set as destination
+        if (mapSelectedStations[0] === stationName) {
+            // Same station clicked again, ignore
+            mapSelectedStations.pop();
+            return;
+        }
+        document.getElementById('pathDest').value = stationName;
+        showToast(mapSelectedStations[0] + ' → ' + stationName, 'info');
+        mapSelectedStations = [];
+        closeStationInfo();
+        // Auto-switch to path tab and find
+        var tabs = document.querySelectorAll('.route-tab-btn');
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.route-tab-content').forEach(function(tc) { tc.classList.remove('active'); });
+        tabs[3].classList.add('active');
+        document.getElementById('routeTab-path').classList.add('active');
+        currentRouteTab = 'path';
+        setTimeout(function() { findShortestPath(); }, 100);
+    }
+}
+
+// ===== STATION INFO =====
+
+function showStationInfo(stationName) {
+    var card = document.getElementById('stationInfoCard');
+    document.getElementById('stationInfoName').textContent = stationName;
+
+    var connections = [];
+    routes.forEach(function(r) {
+        if (r.from === stationName) connections.push({ name: r.to, dist: r.distance });
+        if (r.to === stationName) connections.push({ name: r.from, dist: r.distance });
+    });
+
+    var bodyHtml = '<p style="margin-bottom:12px;color:var(--text-secondary);font-size:13px;">' + connections.length + ' connection(s)</p>';
+    connections.forEach(function(conn) {
+        bodyHtml += '<div class="station-conn-item" onclick="onMapStationClick(\'' + conn.name + '\')">';
+        bodyHtml += '<span class="station-conn-arrow">→</span>';
+        bodyHtml += '<span class="station-conn-name">' + conn.name + '</span>';
+        bodyHtml += '<span class="station-conn-dist">' + conn.dist + ' km</span>';
+        bodyHtml += '</div>';
+    });
+
+    document.getElementById('stationInfoBody').innerHTML = bodyHtml;
+    card.style.display = 'block';
+}
+
+function closeStationInfo() {
+    document.getElementById('stationInfoCard').style.display = 'none';
 }
 
 function findShortestPath() {
@@ -876,7 +1000,14 @@ function highlightPath(path) {
     });
 
     svg += '</svg>';
-    document.getElementById('routeMap').innerHTML = svg;
+    var mapEl = document.getElementById('routeMap');
+    mapEl.innerHTML = svg;
+    if (!document.getElementById('travOverlay')) {
+        var ov = document.createElement('div');
+        ov.id = 'travOverlay';
+        ov.className = 'trav-overlay';
+        mapEl.appendChild(ov);
+    }
 }
 
 // ===== DATA STRUCTURE VISUALIZATIONS =====
