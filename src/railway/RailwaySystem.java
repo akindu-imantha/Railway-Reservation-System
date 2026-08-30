@@ -29,8 +29,13 @@ public class RailwaySystem {
     // Fixed train data used by this command-line version of the system.
     private Train[] trains = {
             new Train(101, "Yal Devi", "Colombo", "Jaffna", 100),
+<<<<<<< HEAD
             new Train(102, "Udarata Menike", "Colombo", "Badulla", 1),
             new Train(103, "Ruhunu Kumari", "Colombo", "Matara", 120)
+=======
+            new Train(102, "Udarata Menike", "Colombo", "Badulla", 80),
+            new Train(103, "Ruhunu Kumari", "Colombo", "Matara", 101)
+>>>>>>> 8b96d8f (Add web frontend and Sinhala documentation)
     };
 
     // Initialize the railway system with default route data.

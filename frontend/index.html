@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Reservation System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🚂</div>
+                <h2>Railway System</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-link" data-page="trains">
+                    <span class="nav-icon">🚆</span>
+                    <span>Trains</span>
+                </a>
+                <a href="#" class="nav-link" data-page="booking">
+                    <span class="nav-icon">🎫</span>
+                    <span>Book Ticket</span>
+                </a>
+                <a href="#" class="nav-link" data-page="cancel">
+                    <span class="nav-icon">❌</span>
+                    <span>Cancel Ticket</span>
+                </a>
+                <a href="#" class="nav-link" data-page="reservations">
+                    <span class="nav-icon">📋</span>
+                    <span>Reservations</span>
+                </a>
+                <a href="#" class="nav-link" data-page="waiting">
+                    <span class="nav-icon">⏳</span>
+                    <span>Waiting List</span>
+                </a>
+                <a href="#" class="nav-link" data-page="undo">
+                    <span class="nav-icon">↩️</span>
+                    <span>Undo Cancel</span>
+                </a>
+                <a href="#" class="nav-link" data-page="passengers">
+                    <span class="nav-icon">👤</span>
+                    <span>Passengers</span>
+                </a>
+                <a href="#" class="nav-link" data-page="search">
+                    <span class="nav-icon">🔍</span>
+                    <span>Search</span>
+                </a>
+                <a href="#" class="nav-link" data-page="sort">
+                    <span class="nav-icon">📊</span>
+                    <span>Sort</span>
+                </a>
+                <a href="#" class="nav-link" data-page="routes">
+                    <span class="nav-icon">🗺️</span>
+                    <span>Routes</span>
+                </a>
+                <a href="#" class="nav-link" data-page="structures">
+                    <span class="nav-icon">🧱</span>
+                    <span>Data Structures</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Railway Reservation System v1.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="topbar-actions">
+                    <span class="date-display" id="dateDisplay"></span>
+                </div>
+            </header>
+
+            <!-- Pages -->
+            <div class="content-area">
+
+                <!-- Dashboard Page -->
+                <section class="page active" id="page-dashboard">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🚆</div>
+                            <div class="stat-info">
+                                <h3 id="statTrains">3</h3>
+                                <p>Total Trains</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎫</div>
+                            <div class="stat-info">
+                                <h3 id="statReservations">0</h3>
+                                <p>Reservations</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⏳</div>
+                            <div class="stat-info">
+                                <h3 id="statWaiting">0</h3>
+                                <p>Waiting List</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👤</div>
+                            <div class="stat-info">
+                                <h3 id="statPassengers">0</h3>
+                                <p>Passengers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-panels">
+                        <div class="panel">
+                            <h3>🚆 Recent Trains</h3>
+                            <div id="dashboardTrains"></div>
+                        </div>
+                        <div class="panel">
+                            <h3>📋 Recent Reservations</h3>
+                            <div id="dashboardReservations">
+                                <p class="empty-state">No reservations yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Trains Page -->
+                <section class="page" id="page-trains">
+                    <div class="page-header">
+                        <h2>Available Trains</h2>
+                    </div>
+                    <div class="trains-grid" id="trainsList"></div>
+                </section>
+
+                <!-- Booking Page -->
+                <section class="page" id="page-booking">
+                    <div class="page-header">
+                        <h2>Book a Ticket</h2>
+                    </div>
+                    <div class="form-container">
+                        <form id="bookingForm">
+                            <div class="form-group">
+                                <label>Select Train</label>
+                                <select id="bookTrain" required>
+                                    <option value="">-- Select a Train --</option>
+                                </select>
+                            </div>
+                            <div id="trainPreview" class="train-preview" style="display:none;"></div>
+                            <div class="form-group">
+                                <label>Passenger Name</label>
+                                <input type="text" id="bookName" placeholder="Enter passenger name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>NIC Number</label>
+                                <input type="text" id="bookNic" placeholder="Enter NIC number" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" id="bookPhone" placeholder="Enter phone number" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Seat Number</label>
+                                <input type="number" id="bookSeat" placeholder="Enter seat number" min="1" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">🎫 Book Ticket</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Cancel Page -->
+                <section class="page" id="page-cancel">
+                    <div class="page-header">
+                        <h2>Cancel Ticket</h2>
+                    </div>
+                    <div class="form-container">
+                        <form id="cancelForm">
+                            <div class="form-group">
+                                <label>Reservation ID</label>
+                                <input type="number" id="cancelId" placeholder="Enter reservation ID" required>
+                            </div>
+                            <button type="submit" class="btn btn-danger btn-block">❌ Cancel Reservation</button>
+                        </form>
+                        <div id="cancelResult"></div>
+                    </div>
+                </section>
+
+                <!-- Reservations Page -->
+                <section class="page" id="page-reservations">
+                    <div class="page-header">
+                        <h2>All Reservations</h2>
+                        <button class="btn btn-primary" onclick="renderReservations()">🔄 Refresh</button>
+                    </div>
+                    <div id="reservationsList" class="table-container"></div>
+                </section>
+
+                <!-- Waiting List Page -->
+                <section class="page" id="page-waiting">
+                    <div class="page-header">
+                        <h2>Waiting List</h2>
+                        <button class="btn btn-primary" onclick="renderWaitingList()">🔄 Refresh</button>
+                    </div>
+                    <div id="waitingList" class="table-container"></div>
+                </section>
+
+                <!-- Undo Page -->
+                <section class="page" id="page-undo">
+                    <div class="page-header">
+                        <h2>Undo Last Cancel</h2>
+                    </div>
+                    <div class="form-container">
+                        <div class="undo-info">
+                            <p>Most recent cancelled reservation:</p>
+                            <div id="undoPreview"></div>
+                        </div>
+                        <button class="btn btn-success btn-block" onclick="undoCancel()">↩️ Restore Last Cancelled</button>
+                        <div id="undoResult"></div>
+                    </div>
+                </section>
+
+                <!-- Passengers Page -->
+                <section class="page" id="page-passengers">
+                    <div class="page-header">
+                        <h2>Passenger Management</h2>
+                    </div>
+                    <div class="passenger-search">
+                        <input type="number" id="searchPassengerId" placeholder="Search by Passenger ID...">
+                        <button class="btn btn-primary" onclick="searchPassenger()">🔍 Search</button>
+                    </div>
+                    <div id="passengerResult"></div>
+                    <div id="passengersList" class="table-container" style="margin-top: 20px;"></div>
+                </section>
+
+                <!-- Search Page -->
+                <section class="page" id="page-search">
+                    <div class="page-header">
+                        <h2>Search Reservations</h2>
+                    </div>
+                    <div class="search-tabs">
+                        <button class="tab-btn active" onclick="switchSearchTab('id')">By Reservation ID (BST)</button>
+                        <button class="tab-btn" onclick="switchSearchTab('nic')">By NIC (Linked List)</button>
+                    </div>
+                    <div id="searchTabId" class="search-tab active">
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label>Reservation ID</label>
+                                <input type="number" id="searchResId" placeholder="Enter reservation ID">
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="searchReservationById()">🔍 Search by ID</button>
+                        </div>
+                    </div>
+                    <div id="searchTabNic" class="search-tab" style="display:none;">
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label>NIC Number</label>
+                                <input type="text" id="searchNic" placeholder="Enter NIC number">
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="searchReservationByNic()">🔍 Search by NIC</button>
+                        </div>
+                    </div>
+                    <div id="searchResult"></div>
+                </section>
+
+                <!-- Sort Page -->
+                <section class="page" id="page-sort">
+                    <div class="page-header">
+                        <h2>Sort Reservations</h2>
+                    </div>
+                    <div class="sort-options">
+                        <button class="btn btn-outline" onclick="sortReservations('id')">Sort by Reservation ID</button>
+                        <button class="btn btn-outline" onclick="sortReservations('name')">Sort by Passenger Name</button>
+                        <button class="btn btn-outline" onclick="sortReservations('seat')">Sort by Seat Number</button>
+                    </div>
+                    <div id="sortResult" class="table-container" style="margin-top: 20px;"></div>
+                </section>
+
+                <!-- Routes Page -->
+                <section class="page" id="page-routes">
+                    <div class="page-header">
+                        <h2>Railway Routes</h2>
+                    </div>
+                    <div class="route-map" id="routeMap"></div>
+                    <div class="route-details" id="routeDetails"></div>
+                    <div class="shortest-path">
+                        <h3>🔍 Find Shortest Path</h3>
+                        <div class="path-form">
+                            <div class="form-group">
+                                <label>Source Station</label>
+                                <select id="pathSource">
+                                    <option value="">-- Select Source --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Destination Station</label>
+                                <select id="pathDest">
+                                    <option value="">-- Select Destination --</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="findShortestPath()">🔍 Find Path</button>
+                        </div>
+                        <div id="pathResult"></div>
+                    </div>
+                </section>
+
+                <!-- Data Structures Visualization Page -->
+                <section class="page" id="page-structures">
+                    <div class="page-header">
+                        <h2>🧱 Data Structure Visualizations</h2>
+                        <button class="btn btn-primary" onclick="refreshAllStructures()">🔄 Refresh All</button>
+                    </div>
+
+                    <!-- Operation Log -->
+                    <div class="ds-operation-log" id="dsOperationLog">
+                        <div class="ds-log-header">
+                            <h3>📋 Operation Log</h3>
+                            <button class="btn btn-outline btn-sm" onclick="clearOpLog()">Clear</button>
+                        </div>
+                        <div class="ds-log-entries" id="dsLogEntries">
+                            <p class="empty-state">Perform an operation to see logs here...</p>
+                        </div>
+                    </div>
+
+                    <div class="ds-grid">
+
+                        <!-- LinkedList -->
+                        <div class="ds-card">
+                            <div class="ds-card-header">
+                                <h3>🔗 LinkedList <span class="ds-badge">Reservations</span></h3>
+                                <span class="ds-count" id="llCount">0 nodes</span>
+                            </div>
+                            <div class="ds-visual" id="linkedListView"></div>
+                            <div class="ds-code-panel">
+                                <div class="ds-code-header">Java Implementation</div>
+                                <pre class="ds-code"><code id="llCode">// LinkedList - Insert at end
+public void insert(Reservation r) {
+  Node newNode = new Node(r);
+  if (head == null) {
+    head = newNode;
+    return;
+  }
+  Node current = head;
+  while (current.next != null)
+    current = current.next;
+  current.next = newNode;
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- Queue -->
+                        <div class="ds-card">
+                            <div class="ds-card-header">
+                                <h3>📦 Queue <span class="ds-badge badge-warning">Waiting List</span></h3>
+                                <span class="ds-count" id="qCount">0 items</span>
+                            </div>
+                            <div class="ds-visual" id="queueView"></div>
+                            <div class="ds-code-panel">
+                                <div class="ds-code-header">Java Implementation</div>
+                                <pre class="ds-code"><code id="qCode">// Queue - Enqueue (add to rear)
+public void enqueue(Passenger p) {
+  QueueNode newNode = new QueueNode(p);
+  if (rear == null) {
+    front = rear = newNode;
+    return;
+  }
+  rear.next = newNode;
+  rear = newNode;
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- Stack -->
+                        <div class="ds-card">
+                            <div class="ds-card-header">
+                                <h3>📚 Stack <span class="ds-badge badge-danger">Undo</span></h3>
+                                <span class="ds-count" id="sCount">0 items</span>
+                            </div>
+                            <div class="ds-visual" id="stackView"></div>
+                            <div class="ds-code-panel">
+                                <div class="ds-code-header">Java Implementation</div>
+                                <pre class="ds-code"><code id="sCode">// Stack - Push (add to top)
+public void push(Reservation r) {
+  Node newNode = new Node(r);
+  newNode.next = top;
+  top = newNode;
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- BST -->
+                        <div class="ds-card ds-card-wide">
+                            <div class="ds-card-header">
+                                <h3>🌳 Binary Search Tree <span class="ds-badge badge-success">Reservation Tree</span></h3>
+                                <span class="ds-count" id="bstCount">0 nodes</span>
+                            </div>
+                            <div class="ds-visual ds-visual-wide" id="bstView"></div>
+                            <div class="ds-code-panel">
+                                <div class="ds-code-header">Java Implementation</div>
+                                <pre class="ds-code"><code id="bstCode">// BST - Insert
+private TreeNode insert(TreeNode node, Reservation r) {
+  if (node == null)
+    return new TreeNode(r);
+  if (r.id < node.reservation.id)
+    node.left = insert(node.left, r);
+  else if (r.id > node.reservation.id)
+    node.right = insert(node.right, r);
+  return node;
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- HashTable -->
+                        <div class="ds-card ds-card-wide">
+                            <div class="ds-card-header">
+                                <h3>🗂️ Hash Table <span class="ds-badge badge-info">Passengers</span></h3>
+                                <span class="ds-count" id="htCount">0 entries</span>
+                            </div>
+                            <div class="ds-visual ds-visual-wide" id="hashTableView"></div>
+                            <div class="ds-code-panel">
+                                <div class="ds-code-header">Java Implementation</div>
+                                <pre class="ds-code"><code id="htCode">// HashTable - Insert
+public void insert(Passenger p) {
+  int index = hash(p.passengerId);
+  Entry current = table[index];
+  while (current != null) {
+    if (current.passenger.passengerId == p.passengerId)
+      { current.passenger = p; return; }
+    current = current.next;
+  }
+  Entry entry = new Entry(p);
+  entry.next = table[index];
+  table[index] = entry;
+}</code></pre>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Run Operation Panel -->
+                    <div class="run-panel" id="runPanel">
+                        <div class="run-panel-header">
+                            <h3>▶️ Run Operation — Step by Step</h3>
+                        </div>
+                        <div class="run-panel-body">
+                            <div class="run-config">
+                                <div class="run-config-row">
+                                    <div class="form-group">
+                                        <label>Data Structure</label>
+                                        <select id="runDS" onchange="updateRunOps()">
+                                            <option value="linkedList">🔗 LinkedList</option>
+                                            <option value="queue">📦 Queue</option>
+                                            <option value="stack">📚 Stack</option>
+                                            <option value="bst">🌳 Binary Search Tree</option>
+                                            <option value="hashTable">🗂️ Hash Table</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Operation</label>
+                                        <select id="runOp" onchange="updateRunFields()"></select>
+                                    </div>
+                                </div>
+                                <div class="run-config-row" id="runFieldsRow">
+                                    <!-- Dynamic fields injected here -->
+                                </div>
+                                <div class="run-controls">
+                                    <button class="btn btn-primary" id="runBtn" onclick="runOperationStepByStep()">
+                                        ▶️ Run Step-by-Step
+                                    </button>
+                                    <button class="btn btn-success" id="runInstantBtn" onclick="runOperationInstant()">
+                                        ⚡ Run Instant
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" onclick="resetRunPanel()" style="margin-left:auto;">
+                                        🔄 Reset
+                                    </button>
+                                    <div class="run-speed">
+                                        <label>Speed:</label>
+                                        <select id="runSpeed">
+                                            <option value="1500">Slow</option>
+                                            <option value="800" selected>Normal</option>
+                                            <option value="300">Fast</option>
+                                            <option value="50">Instant</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="run-split">
+                                <!-- Code viewer with line highlighting -->
+                                <div class="run-code-viewer">
+                                    <div class="run-code-title">📄 Code Execution</div>
+                                    <pre class="run-code-block" id="runCodeBlock"></pre>
+                                </div>
+
+                                <!-- Step log -->
+                                <div class="run-step-log">
+                                    <div class="run-step-title">📋 Step Log</div>
+                                    <div class="run-steps" id="runSteps">
+                                        <p class="ds-empty-msg">Select a data structure and operation to begin...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="run-ops.js"></script>
+</body>
+</html>
